@@ -4,8 +4,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BarChart2, Upload, Settings, TrendingUp, CreditCard, ShoppingBag, Lock } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import { usePlan, canAccess, type PlanType } from "@/context/plan-context";
+
+const PLAN_LABELS: Record<PlanType, string> = { free: "Gratis", pro: "Pro", premium: "Premium" };
+const PLAN_COLORS: Record<PlanType, string> = {
+  free: "text-zinc-500",
+  pro: "text-blue-400",
+  premium: "text-amber-400",
+};
 
 const navItems: {
   href: string;
@@ -29,6 +37,8 @@ function isLocked(plan: PlanType, required: "pro" | "premium" | null): boolean {
 export function Sidebar() {
   const pathname = usePathname();
   const plan = usePlan();
+  const { user } = useUser();
+  const displayName = user?.firstName ?? user?.username ?? "Mi cuenta";
 
   return (
     <aside className="flex flex-col w-60 min-h-screen bg-zinc-900 text-zinc-100 px-4 py-6 shrink-0">
@@ -65,7 +75,10 @@ export function Sidebar() {
 
       <div className="mt-auto pt-6 px-2 border-t border-zinc-700 flex items-center gap-3">
         <UserButton />
-        <p className="text-xs text-zinc-500">Mi cuenta</p>
+        <div className="min-w-0">
+          <p className="text-xs text-zinc-300 font-medium truncate">{displayName}</p>
+          <p className={`text-xs font-medium ${PLAN_COLORS[plan]}`}>{PLAN_LABELS[plan]}</p>
+        </div>
       </div>
     </aside>
   );
