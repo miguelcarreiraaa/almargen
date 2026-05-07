@@ -55,10 +55,10 @@ export default function LandingPage() {
             <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
-            href="/precios"
+            href="/sign-in"
             className="rounded-xl border border-zinc-200 px-6 py-3 text-sm font-semibold text-zinc-600 hover:bg-zinc-50 transition-colors"
           >
-            Ver planes
+            Iniciar sesión
           </Link>
         </div>
         <p className="mt-4 text-xs text-zinc-400">Sin tarjeta. Simulador gratis para siempre.</p>

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { auth } from "@clerk/nextjs/server";
 import { Sidebar } from "@/components/sidebar";
 import { Providers } from "@/components/providers";
