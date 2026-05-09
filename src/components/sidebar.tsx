@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart2, Upload, Settings, TrendingUp, CreditCard, ShoppingBag, Lock } from "lucide-react";
+import { BarChart2, Upload, Settings, TrendingUp, CreditCard, ShoppingBag, Lock, X } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { useUser } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
@@ -34,21 +34,26 @@ function isLocked(plan: PlanType, required: "pro" | "premium" | null): boolean {
   return !canAccess(plan, required);
 }
 
-export function Sidebar() {
+export function Sidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname();
   const plan = usePlan();
   const { user } = useUser();
   const displayName = user?.firstName ?? user?.username ?? "Mi cuenta";
 
   return (
-    <aside className="flex flex-col w-60 min-h-screen bg-zinc-900 text-zinc-100 px-4 py-6 shrink-0">
-      <div className="mb-8 px-2">
-        <Link href="/" className="block">
+    <aside className="flex flex-col w-60 h-screen bg-zinc-900 text-zinc-100 px-4 py-6 shrink-0">
+      <div className="mb-8 px-2 flex items-start justify-between">
+        <Link href="/" className="block" onClick={onClose}>
           <h1 className="text-xl font-bold tracking-tight text-white">
             Al<span className="text-emerald-400">Margen</span>
           </h1>
           <p className="text-xs text-zinc-400 mt-0.5">Semáforo de monotributo</p>
         </Link>
+        {onClose && (
+          <button onClick={onClose} className="md:hidden p-1 text-zinc-400 hover:text-white transition-colors">
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       <nav className="flex flex-col gap-1">
@@ -58,6 +63,7 @@ export function Sidebar() {
             <Link
               key={href}
               href={href}
+              onClick={onClose}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 pathname === href
