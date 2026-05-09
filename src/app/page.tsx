@@ -39,8 +39,8 @@ export default function LandingPage() {
           Actualizado con valores 2026
         </div>
         <h1 className="text-5xl font-bold text-zinc-900 leading-tight tracking-tight max-w-3xl mx-auto">
-          Controlá tu monotributo<br />
-          <span className="text-emerald-500">antes de que te controle a vos</span>
+          Tu monotributo bajo control,<br />
+          <span className="text-emerald-500">mes a mes</span>
         </h1>
         <p className="mt-6 text-lg text-zinc-500 max-w-xl mx-auto leading-relaxed">
           Semáforo fiscal en tiempo real, proyección a 12 meses y alertas predictivas para
