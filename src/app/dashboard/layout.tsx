@@ -16,7 +16,6 @@ export default async function DashboardLayout({
 
   if (userId) {
     const usuario = await getUsuarioPorClerkId(userId);
-    console.log("[layout] userId:", userId, "| usuario:", JSON.stringify(usuario));
     planType = usuario?.plan_type ?? "free";
   }
 
