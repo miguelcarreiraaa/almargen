@@ -8,28 +8,28 @@ import { useUser } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import { usePlan, canAccess, type PlanType } from "@/context/plan-context";
 
-const PLAN_LABELS: Record<PlanType, string> = { free: "Gratis", pro: "Pro", premium: "Premium" };
+const PLAN_LABELS: Record<PlanType, string> = { free: "Gratis", pro: "Pro", estudio: "Estudio" };
 const PLAN_COLORS: Record<PlanType, string> = {
   free: "text-zinc-500",
   pro: "text-blue-400",
-  premium: "text-amber-400",
+  estudio: "text-emerald-400",
 };
 
 const navItems: {
   href: string;
   label: string;
   icon: React.ElementType;
-  requiredPlan: "pro" | "premium" | null;
+  requiredPlan: "pro" | null;
 }[] = [
   { href: "/dashboard",                   label: "Dashboard",     icon: BarChart2,   requiredPlan: null      },
   { href: "/dashboard/cargar",            label: "Cargar datos",  icon: Upload,      requiredPlan: null      },
   { href: "/dashboard/proyeccion",        label: "Proyección",    icon: TrendingUp,  requiredPlan: "pro"     },
-  { href: "/dashboard/simulador-compras", label: "Sim. compras",  icon: ShoppingBag, requiredPlan: "premium" },
+  { href: "/dashboard/simulador-compras", label: "Sim. compras",  icon: ShoppingBag, requiredPlan: "pro"     },
   { href: "/dashboard/configuracion",     label: "Configuración", icon: Settings,    requiredPlan: null      },
   { href: "/dashboard/billing",           label: "Suscripción",   icon: CreditCard,  requiredPlan: null      },
 ];
 
-function isLocked(plan: PlanType, required: "pro" | "premium" | null): boolean {
+function isLocked(plan: PlanType, required: "pro" | null): boolean {
   if (!required) return false;
   return !canAccess(plan, required);
 }

@@ -4,48 +4,96 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { Check, ArrowRight, Shield, Star, Loader2, Gift } from "lucide-react";
+import { Check, Clock, ArrowRight, Gift, Loader2, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const PLANES = [
+type CtaAction = "signup" | "checkout" | "lead";
+
+interface Feature {
+  text: string;
+  soon?: true;
+}
+
+interface Plan {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  precioMensual: number;
+  precioAnual: number;
+  destacado: boolean;
+  badge: string | null;
+  microcopy: string | null;
+  cta: { label: string; action: CtaAction };
+  features: Feature[];
+}
+
+const PLANES: Plan[] = [
+  {
+    id: "free",
+    nombre: "Free",
+    descripcion: "Para conocer tu situación sin comprometerte",
+    precioMensual: 0,
+    precioAnual: 0,
+    destacado: false,
+    badge: null,
+    microcopy: null,
+    cta: { label: "Empezar gratis", action: "signup" },
+    features: [
+      { text: "Semáforo básico (verde/amarillo/rojo)" },
+      { text: "1 carga de CSV por mes" },
+      { text: "Valores ARCA 2026 actualizados" },
+      { text: "Cálculo manual de categoría" },
+    ],
+  },
   {
     id: "pro",
     nombre: "Pro",
-    descripcion: "Para monotributistas que quieren control total",
-    icon: Shield,
-    precioMensual: 15000,
-    precioAnual: 144000,
-    descuentoAnual: 20,
-    ahorroAnual: 36000,
-    destacado: false,
+    descripcion: "Control total de tu monotributo",
+    precioMensual: 7900,
+    precioAnual: 79000,
+    destacado: true,
+    badge: "Más popular",
+    microcopy: null,
+    cta: { label: "Empezar prueba gratuita", action: "checkout" },
     features: [
-      "Dashboard completo 12 meses",
-      "Proyección a 6 meses",
-      "Monto seguro mensual",
-      "Cruce ARCA (gastos/ingresos)",
-      "Alertas por email",
-      "Configuración de categoría y actividad",
+      { text: "Todo lo del Free" },
+      { text: "Dashboard completo 12 meses" },
+      { text: "Proyección 6 meses · Metodología ARCA 12m" },
+      { text: "Monto seguro mensual" },
+      { text: "Cruce ARCA 1.5× (gastos vs ingresos)" },
+      { text: "Simulador de grandes compras" },
+      { text: "Validador ¿esta compra me expulsa del régimen?" },
+      { text: "Alertas por email pre-recategorización" },
+      { text: "Cargas ilimitadas de CSV" },
+      { text: "Soporte por email" },
     ],
   },
   {
-    id: "premium",
-    nombre: "Premium",
-    descripcion: "Modo Blindaje — el máximo nivel de protección",
-    icon: Star,
-    precioMensual: 25000,
-    precioAnual: 225000,
-    descuentoAnual: 25,
-    ahorroAnual: 75000,
-    destacado: true,
+    id: "estudio",
+    nombre: "Estudio",
+    descripcion: "Para contadores y estudios contables",
+    precioMensual: 34900,
+    precioAnual: 349000,
+    destacado: false,
+    badge: null,
+    microcopy: "$1.745 por cliente gestionado · Hasta 20 monotributistas en cartera",
+    cta: { label: "Hablar con nosotros", action: "lead" },
     features: [
-      "Todo lo de Pro",
-      "Simulador de grandes compras",
-      "¿Esta compra me expulsa del régimen?",
-      "Alertas por WhatsApp",
-      "Soporte prioritario",
+      { text: "Todo lo del Pro" },
+      { text: "Dashboard multi-cliente (hasta 20 monotributistas)", soon: true },
+      { text: "Vista consolidada de semáforos de todos los clientes", soon: true },
+      { text: "Alertas por WhatsApp cuando un cliente entra en amarillo/rojo", soon: true },
+      { text: "Reportes exportables PDF para clientes", soon: true },
+      { text: "Soporte directo por WhatsApp", soon: true },
     ],
   },
 ];
+
+const CARD_ORDER: Record<string, string> = {
+  free:    "order-2 md:order-1",
+  pro:     "order-1 md:order-2",
+  estudio: "order-3 md:order-3",
+};
 
 function formatearPrecio(n: number): string {
   return new Intl.NumberFormat("es-AR", {
@@ -58,18 +106,25 @@ function formatearPrecio(n: number): string {
 export default function PreciosPage() {
   const [ciclo, setCiclo] = useState<"mensual" | "anual">("mensual");
   const [loading, setLoading] = useState<string | null>(null);
+  const [showLeadModal, setShowLeadModal] = useState(false);
   const { isSignedIn } = useUser();
   const router = useRouter();
 
-  async function handleEmpezar(planId: string) {
+  async function handleCta(plan: Plan) {
+    if (plan.cta.action === "signup") {
+      router.push(isSignedIn ? "/dashboard" : "/sign-up");
+      return;
+    }
+    if (plan.cta.action === "lead") {
+      setShowLeadModal(true);
+      return;
+    }
     if (!isSignedIn) {
       router.push("/sign-up");
       return;
     }
-
-    const priceKey = `${planId}_${ciclo}`;
-    setLoading(planId);
-
+    const priceKey = `${plan.id}_${ciclo}`;
+    setLoading(plan.id);
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
@@ -94,7 +149,7 @@ export default function PreciosPage() {
 
       {/* Navbar */}
       <header className="border-b border-zinc-100 sticky top-0 bg-white/80 backdrop-blur-sm z-10">
-        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold tracking-tight text-zinc-900">
             Al<span className="text-emerald-500">Margen</span>
           </Link>
@@ -121,10 +176,10 @@ export default function PreciosPage() {
       </header>
 
       {/* Header */}
-      <section className="max-w-4xl mx-auto px-6 pt-20 pb-12 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-xs font-semibold text-emerald-700 mb-6">
+      <section className="max-w-5xl mx-auto px-6 pt-16 pb-10 text-center">
+        <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-xs font-semibold text-emerald-700 mb-5">
           <Gift className="h-3.5 w-3.5" />
-          7 días de prueba gratuita en todos los planes
+          7 días de prueba gratuita en el plan Pro
         </div>
         <h1 className="text-4xl font-bold text-zinc-900 tracking-tight">Planes y precios</h1>
         <p className="mt-3 text-zinc-500 text-base max-w-md mx-auto">
@@ -154,121 +209,174 @@ export default function PreciosPage() {
               "rounded-full px-2 py-0.5 text-xs font-semibold",
               ciclo === "anual" ? "bg-emerald-500 text-white" : "bg-emerald-100 text-emerald-700"
             )}>
-              hasta −25%
+              2 meses gratis
             </span>
           </button>
         </div>
       </section>
 
       {/* Cards */}
-      <section className="max-w-4xl mx-auto px-6 pb-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start max-w-2xl mx-auto">
+      <section className="max-w-5xl mx-auto px-6 pb-24">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
           {PLANES.map((plan) => {
-            const PlanIcon = plan.icon;
             const isLoading = loading === plan.id;
-            const precioBase = ciclo === "anual"
-              ? Math.round(plan.precioAnual / 12)
-              : plan.precioMensual;
+            const showAnual = ciclo === "anual" && plan.precioAnual > 0;
+            const availableFeatures = plan.features.filter((f) => !f.soon);
+            const soonFeatures = plan.features.filter((f) => f.soon);
 
             return (
               <div
                 key={plan.id}
                 className={cn(
                   "rounded-2xl border p-6 flex flex-col",
+                  CARD_ORDER[plan.id],
                   plan.destacado
-                    ? "border-zinc-900 shadow-xl bg-zinc-900 text-white"
+                    ? "border-[#1a1f1c] bg-[#1a1f1c] text-white shadow-2xl"
                     : "border-zinc-200 bg-white"
                 )}
               >
-                {plan.destacado && (
+                {/* Badge */}
+                {plan.badge && (
                   <div className="mb-4">
-                    <span className="rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-white">
-                      Más popular
+                    <span className="rounded-full bg-[#1fa36b] px-3 py-1 text-xs font-semibold text-white">
+                      {plan.badge}
                     </span>
                   </div>
                 )}
 
-                {/* Plan header */}
-                <div className="flex items-center gap-2 mb-3">
-                  <div className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-lg",
-                    plan.destacado ? "bg-zinc-700" : "bg-zinc-100"
-                  )}>
-                    <PlanIcon className={cn("h-4 w-4", plan.destacado ? "text-white" : "text-zinc-700")} />
-                  </div>
-                  <span className={cn("font-bold text-lg", plan.destacado ? "text-white" : "text-zinc-900")}>
+                {/* Plan name + description */}
+                <div className="mb-4">
+                  <p className={cn("text-xl font-bold tracking-tight", plan.destacado ? "text-white" : "text-zinc-900")}>
                     {plan.nombre}
-                  </span>
+                  </p>
+                  <p className={cn("text-xs mt-1 leading-relaxed", plan.destacado ? "text-zinc-400" : "text-zinc-500")}>
+                    {plan.descripcion}
+                  </p>
                 </div>
 
-                <p className={cn("text-xs mb-5 leading-relaxed", plan.destacado ? "text-zinc-400" : "text-zinc-500")}>
-                  {plan.descripcion}
-                </p>
-
                 {/* Precio */}
-                <div className="mb-2">
-                  <p className={cn("text-4xl font-bold tabular-nums", plan.destacado ? "text-white" : "text-zinc-900")}>
-                    {formatearPrecio(precioBase)}
-                    <span className="text-sm font-normal text-zinc-400">/mes</span>
-                  </p>
-                  {ciclo === "anual" && (
-                    <p className={cn("text-xs mt-1", plan.destacado ? "text-emerald-400" : "text-emerald-600")}>
-                      {formatearPrecio(plan.precioAnual)} /año · ahorrás {formatearPrecio(plan.ahorroAnual)} ({plan.descuentoAnual}% off)
-                    </p>
+                <div className="mb-1">
+                  {plan.precioMensual === 0 ? (
+                    <>
+                      <p className="text-4xl font-bold text-zinc-900">
+                        $0<span className="text-sm font-normal text-zinc-400">/mes</span>
+                      </p>
+                      <p className="text-xs text-zinc-400 mt-1">Siempre gratis · Sin tarjeta</p>
+                    </>
+                  ) : showAnual ? (
+                    <>
+                      <p className={cn("text-4xl font-bold tabular-nums", plan.destacado ? "text-white" : "text-zinc-900")}>
+                        {formatearPrecio(plan.precioAnual)}
+                        <span className={cn("text-sm font-normal", plan.destacado ? "text-zinc-400" : "text-zinc-400")}>/año</span>
+                      </p>
+                      <p className={cn("text-xs mt-1", plan.destacado ? "text-emerald-400" : "text-emerald-600")}>
+                        Equivale a {formatearPrecio(Math.round(plan.precioAnual / 12))}/mes · 2 meses gratis
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className={cn("text-4xl font-bold tabular-nums", plan.destacado ? "text-white" : "text-zinc-900")}>
+                        {formatearPrecio(plan.precioMensual)}
+                        <span className={cn("text-sm font-normal", plan.destacado ? "text-zinc-400" : "text-zinc-400")}>/mes</span>
+                      </p>
+                    </>
                   )}
                 </div>
 
-                {/* Trial badge */}
-                <div className={cn(
-                  "flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium mb-5",
-                  plan.destacado ? "bg-emerald-500/20 text-emerald-300" : "bg-emerald-50 text-emerald-700"
-                )}>
-                  <Gift className="h-3.5 w-3.5 shrink-0" />
-                  7 días de prueba gratis · primer cobro al 8° día
-                </div>
+                {/* Microcopy (Estudio) */}
+                {plan.microcopy && (
+                  <p className="text-xs text-zinc-400 mb-4 mt-1">{plan.microcopy}</p>
+                )}
+
+                {/* Trial badge (Pro only) */}
+                {plan.cta.action === "checkout" && (
+                  <div className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium mt-3 mb-4 bg-emerald-500/20 text-emerald-300">
+                    <Gift className="h-3.5 w-3.5 shrink-0" />
+                    7 días de prueba gratis · primer cobro al 8° día
+                  </div>
+                )}
 
                 {/* CTA */}
                 <button
-                  onClick={() => handleEmpezar(plan.id)}
+                  onClick={() => handleCta(plan)}
                   disabled={isLoading}
                   className={cn(
-                    "flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-colors mb-6 disabled:opacity-70",
-                    plan.destacado
-                      ? "bg-white text-zinc-900 hover:bg-zinc-100"
-                      : "bg-zinc-900 text-white hover:bg-zinc-700"
+                    "flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-colors mt-4 mb-6 disabled:opacity-70",
+                    plan.cta.action === "checkout"
+                      ? "bg-[#1fa36b] text-[#1a1f1c] hover:bg-[#1a8f5d]"
+                      : plan.cta.action === "lead"
+                        ? "border border-[#1fa36b] text-[#1fa36b] bg-transparent hover:bg-emerald-50"
+                        : "border border-zinc-200 text-zinc-800 bg-white hover:bg-zinc-50"
                   )}
                 >
                   {isLoading
-                    ? <><Loader2 className="h-4 w-4 animate-spin" /> Redirigiendo...</>
-                    : <>Empezar prueba gratuita <ArrowRight className="h-4 w-4" /></>
+                    ? <><Loader2 className="h-4 w-4 animate-spin" /> Redirigiendo…</>
+                    : <>{plan.cta.label} <ArrowRight className="h-4 w-4" /></>
                   }
                 </button>
 
-                {/* Features */}
+                {/* Features disponibles */}
                 <ul className="space-y-2.5 flex-1">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm">
-                      <Check className={cn("h-4 w-4 shrink-0 mt-0.5", plan.destacado ? "text-emerald-400" : "text-emerald-500")} />
-                      <span className={plan.destacado ? "text-zinc-300" : "text-zinc-600"}>{f}</span>
+                  {availableFeatures.map((f) => (
+                    <li key={f.text} className="flex items-start gap-2 text-sm">
+                      <Check className="h-4 w-4 shrink-0 mt-0.5 text-[#1fa36b]" />
+                      <span className={plan.destacado ? "text-zinc-300" : "text-zinc-600"}>{f.text}</span>
                     </li>
                   ))}
+
+                  {/* Sección "En desarrollo" */}
+                  {soonFeatures.length > 0 && (
+                    <>
+                      <li className="pt-3 pb-1">
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
+                          <Lock className="h-3 w-3" />
+                          En desarrollo
+                        </span>
+                      </li>
+                      {soonFeatures.map((f) => (
+                        <li key={f.text} className="flex items-start gap-2 text-sm">
+                          <Clock className="h-4 w-4 shrink-0 mt-0.5 text-zinc-300" />
+                          <span className="text-zinc-400 leading-relaxed">
+                            {f.text}
+                            <span className="ml-1.5 inline-flex items-center rounded-full bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-400">
+                              Próximamente
+                            </span>
+                          </span>
+                        </li>
+                      ))}
+                    </>
+                  )}
                 </ul>
               </div>
             );
           })}
         </div>
 
-        {/* Free note */}
-        <p className="text-center text-xs text-zinc-400 mt-10">
-          ¿Solo querés probar? El simulador básico es gratis y no requiere registro.{" "}
-          <Link href="/" className="underline hover:text-zinc-600 transition-colors">
-            Ir al simulador
-          </Link>
-        </p>
-        <p className="text-center text-xs text-zinc-400 mt-2">
-          Precios en pesos argentinos. Sin permanencia mínima. Cancelás cuando querés.
-        </p>
+        {/* Footer notes */}
+        <div className="mt-10 text-center space-y-2">
+          <p className="text-xs text-zinc-400">
+            ¿Solo querés probar? El simulador básico es gratis y no requiere registro.{" "}
+            <Link href="/" className="underline hover:text-zinc-600 transition-colors">
+              Ir al simulador
+            </Link>
+          </p>
+          <p className="text-xs text-zinc-400">
+            Precios en pesos argentinos · Sin permanencia mínima · Cancelás cuando querés
+          </p>
+        </div>
       </section>
+
+      {/* Modal Estudio — PASO 3.4 */}
+      {showLeadModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowLeadModal(false); }}
+        >
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
+            <p className="text-sm text-zinc-400 text-center">Formulario disponible en breve.</p>
+          </div>
+        </div>
+      )}
 
     </div>
   );

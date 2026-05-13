@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useContext } from "react";
 
-export type PlanType = "free" | "pro" | "premium";
+export type PlanType = "free" | "pro" | "estudio";
 
 const PlanCtx = createContext<PlanType>("free");
 
@@ -19,7 +19,6 @@ export function usePlan(): PlanType {
   return useContext(PlanCtx);
 }
 
-export function canAccess(plan: PlanType, required: "pro" | "premium"): boolean {
-  if (required === "pro") return plan === "pro" || plan === "premium";
-  return plan === "premium";
+export function canAccess(plan: PlanType, required: "pro"): boolean {
+  return plan === "pro" || plan === "estudio";
 }

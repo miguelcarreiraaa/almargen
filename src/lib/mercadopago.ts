@@ -20,14 +20,14 @@ export const PLAN_CONFIG: Record<
 > = {
   pro_mensual: {
     reason: "AlMargen Pro — Mensual",
-    amount: 15000,
+    amount: 7900,
     frequency: 1,
     frequency_type: "months",
     plan_type: "pro",
   },
   pro_anual: {
     reason: "AlMargen Pro — Anual",
-    amount: 144000,
+    amount: 79000,
     frequency: 12,
     frequency_type: "months",
     plan_type: "pro",

@@ -42,7 +42,7 @@ export default function SimuladorComprasPage() {
         </p>
       </div>
 
-      <LockedFeature requiredPlan="premium">
+      <LockedFeature requiredPlan="pro">
         <div className="space-y-5">
           <Card>
             <CardHeader className="pb-3">

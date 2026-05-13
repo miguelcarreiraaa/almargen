@@ -4,7 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { Providers } from "@/components/providers";
 import { PlanProvider, type PlanType } from "@/context/plan-context";
 import { DashboardShell } from "@/components/dashboard-shell";
-import { getUsuarioPorClerkId } from "@/lib/supabase";
+import { getUsuarioPorClerkId, normalizePlanType } from "@/lib/supabase";
 
 export default async function DashboardLayout({
   children,
@@ -16,7 +16,7 @@ export default async function DashboardLayout({
 
   if (userId) {
     const usuario = await getUsuarioPorClerkId(userId);
-    planType = usuario?.plan_type ?? "free";
+    planType = normalizePlanType(usuario?.plan_type);
   }
 
   return (

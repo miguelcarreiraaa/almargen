@@ -6,7 +6,7 @@ import Link from "next/link";
 import {
   CheckCircle2,
   Shield,
-  Star,
+  Building2,
   Loader2,
   ArrowUpRight,
   Clock,
@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type PlanType = "free" | "pro" | "premium";
+type PlanType = "free" | "pro" | "estudio";
 
 interface BillingInfo {
   plan_type: PlanType;
@@ -39,12 +39,12 @@ const PLAN_INFO = {
     bg: "bg-zinc-100",
     description: "Dashboard completo, proyección, alertas.",
   },
-  premium: {
-    label: "Premium",
-    icon: Star,
-    color: "text-zinc-900",
-    bg: "bg-zinc-200",
-    description: "Modo Blindaje — el máximo nivel de protección.",
+  estudio: {
+    label: "Estudio",
+    icon: Building2,
+    color: "text-emerald-700",
+    bg: "bg-emerald-50",
+    description: "Para contadores y estudios contables.",
   },
 };
 
@@ -239,8 +239,8 @@ function BillingContent() {
         )}
       </div>
 
-      {/* Feature comparison — for non-premium users */}
-      {!loadingBilling && plan !== "premium" && (
+      {/* Feature comparison — for non-estudio users */}
+      {!loadingBilling && plan !== "estudio" && (
         <div className="rounded-2xl border border-zinc-200 bg-white p-6">
           <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 mb-4">Funciones por plan</p>
           <div className="overflow-x-auto">

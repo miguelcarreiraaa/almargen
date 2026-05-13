@@ -12,7 +12,7 @@ export function createAdminClient() {
   });
 }
 
-export type PlanType = "free" | "pro" | "premium";
+export type PlanType = "free" | "pro" | "estudio";
 
 export interface UsuarioRow {
   id: string;
@@ -20,10 +20,15 @@ export interface UsuarioRow {
   email: string;
   mp_preapproval_id: string | null;
   trial_ends_at: string | null;
-  plan_type: PlanType;
+  plan_type: string;
   status: "active" | "inactive" | "cancelled";
   created_at: string;
   updated_at: string;
+}
+
+export function normalizePlanType(raw: string | null | undefined): PlanType {
+  if (raw === "pro" || raw === "estudio") return raw;
+  return "free";
 }
 
 export async function getUsuarioPorClerkId(clerkId: string): Promise<UsuarioRow | null> {
