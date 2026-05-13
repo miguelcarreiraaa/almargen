@@ -43,7 +43,7 @@ export default function LandingPage() {
           <span className="text-emerald-500">mes a mes</span>
         </h1>
         <p className="mt-6 text-lg text-zinc-500 max-w-xl mx-auto leading-relaxed">
-          Semáforo fiscal en tiempo real, proyección a 12 meses y alertas predictivas para
+          Semáforo fiscal en tiempo real, proyección 6 meses · Metodología ARCA 12m, y alertas predictivas para
           que nunca más te sorprenda la recategorización.
         </p>
         <div className="flex items-center justify-center gap-4 mt-8">
@@ -81,7 +81,7 @@ export default function LandingPage() {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900">
                 <Zap className="h-5 w-5 text-white" />
               </div>
-              <h3 className="font-semibold text-zinc-900">Proyección a 6 meses</h3>
+              <h3 className="font-semibold text-zinc-900">Proyección 6 meses · Metodología ARCA 12m</h3>
               <p className="text-sm text-zinc-500 leading-relaxed">
                 Sabé cuánto podés facturar cada mes para mantenerte en tu categoría. Con la metodología exacta del ARCA.
               </p>
@@ -120,7 +120,7 @@ export default function LandingPage() {
             ¿Querés el análisis completo?
           </h2>
           <p className="mt-4 text-zinc-400 text-sm">
-            Desbloqueá proyección a 12 meses, cruce ARCA, monto seguro mensual y alertas por email.
+            Desbloqueá proyección 6 meses · Metodología ARCA 12m, cruce ARCA, monto seguro mensual y alertas por email.
           </p>
           <div className="flex items-center justify-center gap-4 mt-8">
             <Link
