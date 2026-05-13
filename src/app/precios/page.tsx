@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { Check, Clock, ArrowRight, Gift, Loader2, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LeadModal } from "@/components/lead-modal";
 
 type CtaAction = "signup" | "checkout" | "lead";
 
@@ -235,12 +236,10 @@ export default function PreciosPage() {
                     : "border-zinc-200 bg-white"
                 )}
               >
-                {/* Badge */}
+                {/* Badge — ribbon verde al tope del card */}
                 {plan.badge && (
-                  <div className="mb-4">
-                    <span className="rounded-full bg-[#1fa36b] px-3 py-1 text-xs font-semibold text-white">
-                      {plan.badge}
-                    </span>
+                  <div className="-mx-6 -mt-6 mb-5 bg-[#1fa36b] rounded-t-2xl py-2.5 text-center">
+                    <span className="text-xs font-bold text-white tracking-wide">{plan.badge}</span>
                   </div>
                 )}
 
@@ -366,17 +365,7 @@ export default function PreciosPage() {
         </div>
       </section>
 
-      {/* Modal Estudio — PASO 3.4 */}
-      {showLeadModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
-          onClick={(e) => { if (e.target === e.currentTarget) setShowLeadModal(false); }}
-        >
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
-            <p className="text-sm text-zinc-400 text-center">Formulario disponible en breve.</p>
-          </div>
-        </div>
-      )}
+      <LeadModal open={showLeadModal} onClose={() => setShowLeadModal(false)} />
 
     </div>
   );
