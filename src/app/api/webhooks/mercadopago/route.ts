@@ -58,7 +58,8 @@ export async function POST(req: Request) {
       ([, cfg]) => cfg.amount === amount && cfg.frequency === frequency
     )?.[0] as PlanKey | undefined;
 
-    const planType = planKey ? PLAN_CONFIG[planKey].plan_type : "pro";
+    const rawPlanType = planKey ? PLAN_CONFIG[planKey].plan_type : "pro";
+    const planType = rawPlanType === "premium" ? "pro" : rawPlanType;
 
     await actualizarPlan(clerkId, planType, {
       mpPreapprovalId: sub.id,
